@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal do Cliente - Tomazela Piscinas</title>
+    <style>
+        /* (Todo o seu CSS continua o mesmo, sem mudanças) */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(to bottom, #004e92 0%, #000428 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+        .portal-header {
+            background: #111827;
+            padding: 15px 30px;
+            border-bottom: 2px solid #007bff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .portal-header h1 {
+            font-size: 1.5rem;
+            color: #fff;
+        }
+        .portal-header button {
+            background: #dc2626; color: #fff; border: none;
+            padding: 10px 15px; border-radius: 8px; font-weight: bold;
+            font-size: 0.9rem; cursor: pointer;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .portal-tabs {
+            display: flex;
+            background: #1a202c;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .tab-link {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            background: #374151;
+            color: #9ca3af;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            border-bottom: 3px solid transparent;
+        }
+        .tab-link.active {
+            color: #fff;
+            background: #2d3748;
+            border-bottom-color: #007bff;
+        }
+        .tab-content {
+            display: none; /* Escondido por padrão */
+            background: linear-gradient(145deg, #2d3748, #1a202c);
+            border-radius: 16px;
+            padding: 25px;
+            border: 2px solid #374151;
+        }
+        .tab-content.active {
+            display: block; /* Mostra o ativo */
+        }
+        .tab-content h2 {
+            font-size: 1.8rem;
+            color: #007bff;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #4b5563;
+            padding-bottom: 10px;
+        }
+        .visita-card {
+            background: #374151;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            padding: 20px;
+            border-left: 4px solid #007bff;
+        }
+        .visita-card h3 {
+            font-size: 1.3rem;
+            color: #fff;
+            margin-bottom: 15px;
+        }
+        .visita-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .param-item {
+            background: #4b5563;
+            padding: 10px;
+            border-radius: 6px;
+        }
+        .param-item strong { color: #fff; }
+        .visita-servicos ul {
+            list-style: none;
+            padding-left: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .visita-servicos li {
+            background: #007bff;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        .visita-fotos {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #4b5563;
+        }
+        .visita-fotos h4 { color: #f59e0b; }
+        .visita-fotos p { font-size: 0.9rem; color: #9ca3af; }
+        .fatura-card {
+            background: #374151;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            padding: 20px;
+            border-left: 4px solid #10b981;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .fatura-info h3 { font-size: 1.2rem; color: #fff; }
+        .fatura-info span { font-size: 0.9rem; color: #9ca3af; }
+        .fatura-total { font-size: 1.6rem; font-weight: bold; color: #10b981; }
+        .pedido-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        @media (min-width: 800px) {
+            .pedido-grid { grid-template-columns: 1fr 300px; }
+        }
+        .produto-item {
+            background: #374151;
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .produto-item button {
+            background: #007bff; color: #fff; border: none;
+            padding: 8px 12px; border-radius: 6px; cursor: pointer;
+        }
+        #carrinho-lista .produto-item button { background: #dc2626; }
+        #carrinho-total {
+            font-size: 1.3rem; font-weight: bold; color: #10b981;
+            text-align: right; margin-top: 15px;
+        }
+        #btn-enviar-pedido {
+            background: #10b981; color: #fff; border: none;
+            padding: 15px; border-radius: 8px; cursor: pointer;
+            width: 100%; font-size: 1.1rem; font-weight: bold; margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="portal-header">
+        <h1 id="welcome-header">Carregando...</h1>
+        <button id="logout-btn">Sair ➔</button>
+    </div>
+
+    <div class="container">
+        <div class="portal-tabs">
+            <button class="tab-link active" onclick="showTab('visitas')">Minhas Visitas</button>
+            <button class="tab-link" onclick="showTab('faturas')">Minhas Faturas</button>
+            <button class="tab-link" onclick="showTab('produtos')">Pedir Produtos</button>
+        </div>
+        
+        <div id="visitas-content" class="tab-content active">
+            <h2>Histórico de Visitas</h2>
+            <div id="visitas-lista">
+                <p>Nenhuma visita registrada ainda.</p>
+            </div>
+        </div>
+        
+        <div id="faturas-content" class="tab-content">
+            <h2>Histórico de Faturas</h2>
+            <div id="faturas-lista">
+                <p>Nenhuma fatura fechada ainda.</p>
+            </div>
+        </div>
+        
+        <div id="produtos-content" class="tab-content">
+            <h2>Fazer um Pedido</h2>
+            <div class="pedido-grid">
+                <div>
+                    <h4>Produtos Disponíveis</h4>
+                    <div id="produtos-lista" style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
+                        <p>Carregando produtos...</p>
+                    </div>
+                </div>
+                <div>
+                    <h4>Seu Carrinho</h4>
+                    <div id="carrinho-lista" style="min-height: 100px;">
+                        <p style="color:#9ca3af; text-align: center;">Carrinho vazio.</p>
+                    </div>
+                    <div id="carrinho-total">Total: R$ 0,00</div>
+                    <button id="btn-enviar-pedido">Enviar Pedido</button>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+        import { 
+            getDatabase, ref, query, get, push, 
+            orderByChild, equalTo 
+        } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB_2Ssx3a3CW3PEP2RBh7j5TQl1UPuSg4k",
+            authDomain: "tomazela-piscinas.firebaseapp.com",
+            databaseURL: "https://tomazela-piscinas-default-rtdb.firebaseio.com", 
+            projectId: "tomazela-piscinas",
+            storageBucket: "tomazela-piscinas.firebasestorage.app",
+            messagingSenderId: "776818671387",
+            appId: "1:776818671387:web:ca4211e6fa8f3f1c889dbe",
+            measurementId: "G-PP230KYC4X"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+        
+        const clientesRef = ref(database, 'clientes');
+        const visitasRef = ref(database, 'visitas');
+        const faturasRef = ref(database, 'faturas');
+        const produtosRef = ref(database, 'produtos');
+        const servicosRef = ref(database, 'servicos'); 
+
+        let loggedInClientData = null; 
+        let loggedInClientKey = null; 
+        let produtos_db = []; 
+        let carrinho = []; 
+        
+        // --- VIGIA MESTRE DE AUTENTICAÇÃO ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                initPortal(user);
+            } else {
+                window.location.href = 'login_cliente.html';
+            }
+        });
+        
+        // --- BOTÃO DE SAIR ---
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            if (confirm("Tem certeza que deseja sair?")) {
+                signOut(auth);
+            }
+        });
+        
+        // --- 1. INICIALIZAÇÃO DO PORTAL ---
+        async function initPortal(user) {
+            try {
+                const q = query(clientesRef, orderByChild('uid'), equalTo(user.uid));
+                const snapshot = await get(q);
+                
+                if (!snapshot.exists()) {
+                    console.error("Erro crítico: UID de login não encontrado.");
+                    alert("Erro ao carregar seu perfil. Contate o suporte.");
+                    signOut(auth);
+                    return;
+                }
+                
+                snapshot.forEach((child) => {
+                    loggedInClientKey = child.key;
+                    loggedInClientData = child.val();
+                });
+                
+                document.getElementById('welcome-header').textContent = `Olá, ${loggedInClientData.nome.split(' ')[0]}!`;
+                
+                loadVisitasTab();
+                loadFaturasTab();
+                loadProdutosTab();
+                
+                document.getElementById('btn-enviar-pedido').addEventListener('click', submitClientOrder);
+                
+            } catch (e) {
+                console.error("Erro ao inicializar o portal: ", e);
+            }
+        }
+        
+        // --- 2. LÓGICA DAS ABAS ---
+        window.showTab = (tabName) => {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-link').forEach(el => el.classList.remove('active'));
+            document.getElementById(`${tabName}-content`).classList.add('active');
+            document.querySelector(`.tab-link[onclick="showTab('${tabName}')"]`).classList.add('active');
+        }
+        
+        // --- 3. CARREGAR ABAS DE DADOS (COM TRY...CATCH) ---
+        
+        // ⭐ ATUALIZADO: Com try/catch e aviso de índice
+        async function loadVisitasTab() {
+            const container = document.getElementById('visitas-lista');
+            container.innerHTML = '<p>Buscando visitas...</p>';
+            
+            try {
+                const q = query(visitasRef, orderByChild('clienteId'), equalTo(loggedInClientKey));
+                const snapshot = await get(q);
+                
+                if (!snapshot.exists()) {
+                    container.innerHTML = '<p>Nenhuma visita técnica registrada ainda.</p>';
+                    return;
+                }
+                
+                container.innerHTML = '';
+                let visitas = [];
+                snapshot.forEach(child => visitas.push(child.val()));
+                visitas.sort((a, b) => new Date(b.dataVisita) - new Date(a.dataVisita));
+                
+                visitas.forEach(visita => {
+                    const dataFormatada = new Date(visita.dataVisita + 'T12:00:00').toLocaleDateString('pt-BR');
+                    const servicosHTML = visita.servicos && visita.servicos.length > 0 ? 
+                        `<ul>${visita.servicos.map(s => `<li>${s}</li>`).join('')}</ul>` : 
+                        '<p>Nenhum serviço específico listado.</p>';
+                    
+                    container.innerHTML += `
+                        <div class="visita-card">
+                            <h3>Visita de ${dataFormatada}</h3>
+                            <div class="visita-grid">
+                                <div class="param-item">pH: <strong>${visita.ph || 'N/A'}</strong></div>
+                                <div class="param-item">Alcalinidade: <strong>${visita.alcalinidade || 'N/A'}</strong></div>
+                                <div class="param-item">Cloro: <strong>${visita.cloro || 'N/A'}</strong></div>
+                            </div>
+                            <div class="visita-servicos">
+                                <strong>Serviços:</strong>
+                                ${servicosHTML}
+                            </div>
+                            <div class="visita-fotos">
+                                <h4>Fotos (Em Breve)</h4>
+                                <p>Assim que o armazenamento de fotos for ativado, elas aparecerão aqui.</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            
+            } catch (e) {
+                console.error("Erro ao carregar visitas:", e);
+                // Se o erro for o índice (que acabamos de adicionar), ele avisará
+                if (e.message.includes("index")) {
+                     container.innerHTML = `<p style="color:red; font-weight: bold;"><b>Erro de Admin:</b> Falta o índice '.indexOn' para 'clienteId' nas regras do 'visitas' no Firebase.</p>`;
+                } else {
+                     container.innerHTML = `<p style="color:red;">Erro ao carregar visitas: ${e.message}</p>`;
+                }
+            }
+        }
+        
+        // ⭐ ATUALIZADO: Com try/catch
+        async function loadFaturasTab() {
+            const container = document.getElementById('faturas-lista');
+            container.innerHTML = '<p>Buscando faturas...</p>';
+            
+            try {
+                const q = query(faturasRef, orderByChild('cliente/id'), equalTo(loggedInClientKey));
+                const snapshot = await get(q);
+                
+                if (!snapshot.exists()) {
+                    container.innerHTML = '<p>Nenhuma fatura fechada encontrada.</p>';
+                    return;
+                }
+                
+                container.innerHTML = '';
+                let faturas = [];
+                snapshot.forEach(child => faturas.push(child.val()));
+                faturas.sort((a, b) => new Date(b.dataFechamento) - new Date(a.dataFechamento));
+                
+                faturas.forEach(fatura => {
+                    const dataFormatada = new Date(fatura.dataFechamento).toLocaleDateString('pt-BR');
+                    container.innerHTML += `
+                        <div class="fatura-card">
+                            <div class="fatura-info">
+                                <h3>Fatura (Fechada em ${dataFormatada})</h3>
+                                <span>Mensalidade: R$ ${fatura.mensalidadeBase.toFixed(2)}</span><br>
+                                <span>Avulsos: R$ ${fatura.totalAvulsos.toFixed(2)}</span>
+                            </div>
+                            <div class="fatura-total">
+                                R$ ${fatura.totalFatura.toFixed(2)}
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (e) {
+                console.error("Erro ao carregar faturas:", e);
+                container.innerHTML = `<p style="color:red;">Erro ao carregar faturas. (Verifique o índice 'cliente/id' no nó 'faturas')</p>`;
+            }
+        }
+        
+        // ⭐ ATUALIZADO: Com try/catch
+        async function loadProdutosTab() {
+            const container = document.getElementById('produtos-lista');
+            container.innerHTML = '<p>Carregando produtos...</p>';
+            try {
+                const snapshot = await get(produtosRef);
+                if (!snapshot.exists()) {
+                    container.innerHTML = '<p>Nenhum produto disponível.</p>';
+                    return;
+                }
+                
+                container.innerHTML = '';
+                snapshot.forEach(child => {
+                    const item = child.val();
+                    const id = child.key;
+                    if (!item.pausado) {
+                        produtos_db.push({ id, ...item });
+                        container.innerHTML += `
+                            <div class="produto-item">
+                                <span>
+                                    <strong>${item.nome}</strong><br>
+                                    <span style="color: #10b981;">R$ ${item.preco.toFixed(2)}</span>
+                                </span>
+                                <button onclick="addToCart('${id}')">+ Adicionar</button>
+                            </div>
+                        `;
+                    }
+                });
+            } catch (e) {
+                console.error("Erro ao carregar produtos:", e);
+                container.innerHTML = '<p style="color:red;">Erro ao carregar produtos.</p>';
+            }
+        }
+        
+        // --- 4. LÓGICA DO CARRINHO E PEDIDO (Sem mudanças) ---
+        window.addToCart = (id) => {
+            const produto = produtos_db.find(p => p.id === id);
+            if (!produto) return;
+            
+            carrinho.push({
+                itemId: id,
+                tipo: 'produto',
+                nome: produto.nome,
+                precoTotal: produto.preco,
+                quantidade: 1
+            });
+            renderCart();
+        }
+        
+        window.removeFromCart = (index) => {
+            carrinho.splice(index, 1);
+            renderCart();
+        }
+        
+        function renderCart() {
+            const container = document.getElementById('carrinho-lista');
+            if (carrinho.length === 0) {
+                container.innerHTML = '<p style="color:#9ca3af; text-align: center;">Carrinho vazio.</p>';
+                document.getElementById('carrinho-total').textContent = 'Total: R$ 0,00';
+                return;
+            }
+            
+            container.innerHTML = '';
+            let total = 0;
+            carrinho.forEach((item, index) => {
+                total += item.precoTotal;
+                container.innerHTML += `
+                    <div class="produto-item">
+                        <span>1x ${item.nome}</span>
+                        <button onclick="removeFromCart(${index})">Remover</button>
+                    </div>
+                `;
+            });
+            document.getElementById('carrinho-total').textContent = `Total: R$ ${total.toFixed(2)}`;
+        }
+        
+        async function submitClientOrder() {
+            if (carrinho.length === 0) {
+                alert("Seu carrinho está vazio.");
+                return;
+            }
+            if (!confirm("Tem certeza que deseja enviar este pedido? \n\nOs itens serão adicionados à sua próxima fatura.")) {
+                return;
+            }
+            
+            const btn = document.getElementById('btn-enviar-pedido');
+            btn.disabled = true;
+            btn.textContent = 'Enviando...';
+            
+            const total = carrinho.reduce((sum, item) => sum + (item.precoTotal * item.quantidade), 0);
+
+            const pedidoCompleto = {
+                cliente: loggedInClientData,
+                itens: carrinho,
+                pagamento: 'Lançar na Mensalidade (Pedido via Portal)',
+                total: total,
+                status: 'Pendente', 
+                hora: new Date().toISOString(),
+                faturado: false 
+            };
+            
+            try {
+                await push(servicosRef, pedidoCompleto);
+                alert("Pedido enviado com sucesso! \n\nFernando entrará em contato para agendar a entrega.");
+                carrinho = [];
+                renderCart();
+            } catch (e) {
+                console.error("Erro ao enviar pedido: ", e);
+                alert("Erro ao enviar seu pedido. Tente novamente.");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Enviar Pedido';
+            }
+        }
+        
+        window.showTab = showTab;
+        window.addToCart = addToCart;
+        window.removeFromCart = removeFromCart;
+        
+    </script>
+</body>
+</html>

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal do Cliente - Tomazela Piscinas</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(to bottom, #004e92 0%, #000428 100%);
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .login-container {
+            background: linear-gradient(145deg, #2d3748, #1a202c);
+            padding: 40px;
+            border-radius: 20px;
+            border: 2px solid #007bff;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+        }
+        .login-container h1 {
+            font-size: 2rem;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        .login-container h2 {
+            font-size: 1.2rem;
+            color: #007bff;
+            margin-bottom: 30px;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: #374151;
+            border: none;
+            color: #9ca3af;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .tab-btn:first-child { border-radius: 8px 0 0 8px; }
+        .tab-btn:last-child { border-radius: 0 8px 8px 0; }
+        .tab-btn.active {
+            background: #007bff;
+            color: #fff;
+        }
+        
+        .form-panel {
+            display: none; /* Escondido por padrão */
+        }
+        .form-panel.active {
+            display: block; /* Mostra o painel ativo */
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #9ca3af;
+            font-weight: bold;
+        }
+        .input-field {
+            width: 100%;
+            background: #374151;
+            color: #fff;
+            border: 2px solid #4b5563;
+            border-radius: 8px;
+            padding: 14px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        
+        .btn-submit {
+            width: 100%;
+            background: #10b981;
+            color: #fff;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-submit:hover {
+            background: #059669;
+        }
+        .btn-submit:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        
+        .forgot-password {
+            margin-top: 20px;
+            background: none;
+            border: none;
+            color: #007bff;
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        
+        #error-message {
+            color: #ef4444; /* Vermelho */
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none; /* Escondido por padrão */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <h1>Portal do Cliente</h1>
+        <h2>Tomazela Piscinas</h2>
+
+        <div class="tab-buttons">
+            <button class="tab-btn active" onclick="showPanel('login')">Entrar</button>
+            <button class="tab-btn" onclick="showPanel('register')">Primeiro Acesso / Registrar</button>
+        </div>
+        
+        <div id="error-message"></div>
+
+        <div id="login-panel" class="form-panel active">
+            <form id="login-form">
+                <div class="input-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" class="input-field" required>
+                </div>
+                <div class="input-group">
+                    <label for="login-password">Senha</label>
+                    <input type="password" id="login-password" class="input-field" required>
+                </div>
+                <button type="submit" class="btn-submit">Entrar</button>
+            </form>
+            <button class="forgot-password" onclick="handleResetPassword()">Esqueci minha senha</button>
+        </div>
+        
+        <div id="register-panel" class="form-panel">
+            <p style="color: #9ca3af; margin-bottom: 20px; font-size: 0.9rem;">
+                Use o <strong>mesmo email</strong> que você informou ao Fernando para criar sua conta.
+            </p>
+            <form id="register-form">
+                <div class="input-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" class="input-field" required>
+                </div>
+                <div class="input-group">
+                    <label for="register-password">Crie sua Senha</label>
+                    <input type="password" id="register-password" class="input-field" required>
+                </div>
+                <button type="submit" class="btn-submit">Criar Conta</button>
+            </form>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+        import { 
+            getAuth, 
+            onAuthStateChanged, 
+            signInWithEmailAndPassword,
+            createUserWithEmailAndPassword,
+            sendPasswordResetEmail,
+            signOut 
+        } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+        import { getDatabase, ref, query, get, orderByChild, equalTo, update } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB_2Ssx3a3CW3PEP2RBh7j5TQl1UPuSg4k",
+            authDomain: "tomazela-piscinas.firebaseapp.com",
+            databaseURL: "https://tomazela-piscinas-default-rtdb.firebaseio.com", 
+            projectId: "tomazela-piscinas",
+            storageBucket: "tomazela-piscinas.firebasestorage.app",
+            messagingSenderId: "776818671387",
+            appId: "1:776818671387:web:ca4211e6fa8f3f1c889dbe",
+            measurementId: "G-PP230KYC4X"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+        const clientesRef = ref(database, 'clientes');
+        
+        const errorMessage = document.getElementById('error-message');
+
+        // --- VIGIA DE AUTENTICAÇÃO (Sem mudanças) ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const q = query(clientesRef, orderByChild('uid'), equalTo(user.uid));
+                const snapshot = await get(q);
+                
+                if (snapshot.exists()) {
+                    window.location.href = 'portal_cliente.html'; 
+                } else {
+                    signOut(auth);
+                }
+            }
+        });
+
+        // --- LÓGICA DAS ABAS (Sem mudanças) ---
+        window.showPanel = (panelName) => {
+            document.getElementById('login-panel').classList.remove('active');
+            document.getElementById('register-panel').classList.remove('active');
+            document.querySelector('.tab-btn[onclick="showPanel(\'login\')"]').classList.remove('active');
+            document.querySelector('.tab-btn[onclick="showPanel(\'register\')"]').classList.remove('active');
+            
+            document.getElementById(`${panelName}-panel`).classList.add('active');
+            document.querySelector(`.tab-btn[onclick="showPanel('${panelName}')"]`).classList.add('active');
+            errorMessage.style.display = 'none'; 
+        }
+
+        // --- FUNÇÃO DE LOGIN (Sem mudanças) ---
+        const loginForm = document.getElementById('login-form');
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.textContent = 'Entrando...';
+            
+            try {
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                showError("Email ou senha inválidos.");
+                btn.disabled = false;
+                btn.textContent = 'Entrar';
+            }
+        });
+        
+        // --- ⭐ FUNÇÃO DE REGISTRAR ATUALIZADA (COM LÓGICA DE ERRO CORRETA) ⭐ ---
+        const registerForm = document.getElementById('register-form');
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.textContent = 'Criando...';
+            
+            try {
+                const email = document.getElementById('register-email').value;
+                const password = document.getElementById('register-password').value;
+
+                // 1. Verifica se esse email é de um cliente válido
+                const q = query(clientesRef, orderByChild('emailAcesso'), equalTo(email));
+                const snapshot = await get(q);
+                
+                if (!snapshot.exists()) {
+                    showError("Email não encontrado. Verifique se este é o email que você cadastrou no painel de admin.");
+                    throw new Error("Cliente não encontrado na base de dados");
+                }
+
+                // 2. Se o email existe, cria a conta de autenticação
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                
+                // 3. Vincula o ID de Autenticação (uid) ao cadastro do cliente
+                const clientId = Object.keys(snapshot.val())[0]; 
+                const clientUpdates = {};
+                clientUpdates[`/clientes/${clientId}/uid`] = user.uid; 
+                
+                await update(ref(database), clientUpdates);
+                
+                // Sucesso! O onAuthStateChanged vai pegar e redirecionar
+                
+            } catch (error) {
+                console.error("Erro no registro:", error);
+                
+                // ⭐ Lógica de erro melhorada
+                if (error.code === 'auth/email-already-in-use') {
+                    showError("Esta conta já foi registrada. Tente 'Entrar' ou 'Esqueci minha senha'.");
+                } else if (error.message.includes("Cliente não encontrado")) {
+                    // Mensagem já exibida pelo showError
+                } else if (error.code === 'auth/weak-password') {
+                    showError("Senha muito fraca. A senha deve ter no mínimo 6 caracteres.");
+                } else if (error.code === 'auth/invalid-email') {
+                    showError("O email digitado não é válido.");
+                } else if (error.code === 'auth/operation-not-allowed') {
+                    showError("Erro do servidor: A criação de contas não está habilitada. (Contate o admin)");
+                } else {
+                    showError("Ocorreu um erro inesperado: " + error.message);
+                }
+                
+                // Re-habilita o botão
+                btn.disabled = false;
+                btn.textContent = 'Criar Conta';
+            }
+        });
+        
+        // --- FUNÇÃO DE RESETAR SENHA (Sem mudanças) ---
+        window.handleResetPassword = async () => {
+            const email = prompt("Por favor, digite seu email de acesso:");
+            if (!email) return;
+            
+            try {
+                await sendPasswordResetEmail(auth, email);
+                alert("Email de redefinição de senha enviado! Verifique sua caixa de entrada.");
+            } catch (error) {
+                showError("Não foi possível enviar o email. Verifique se o email está correto.");
+            }
+        }
+        
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
