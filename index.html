@@ -3,72 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal do Cliente - Tomazela Piscinas</title>
+    <title>Portal do Cliente</title>
     <style>
-        /* (Todo o seu CSS continua o mesmo, sem mudanças) */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(to bottom, #004e92 0%, #000428 100%);
             color: #ffffff;
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
             min-height: 100vh;
             padding: 20px;
         }
-        .login-container {
+        .login-card {
             background: linear-gradient(145deg, #2d3748, #1a202c);
+            border-radius: 16px;
             padding: 40px;
-            border-radius: 20px;
-            border: 2px solid #007bff;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            max-width: 450px;
+            border: 2px solid #374151;
             width: 100%;
-            text-align: center;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        .login-container h1 {
-            font-size: 2rem;
+        .login-card h1 {
+            text-align: center;
             color: #fff;
+            font-size: 2rem;
             margin-bottom: 10px;
         }
-        .login-container h2 {
-            font-size: 1.2rem;
-            color: #007bff;
+        .login-card p {
+            text-align: center;
+            color: #9ca3af;
             margin-bottom: 30px;
         }
-        
-        .tab-buttons {
-            display: flex;
-            margin-bottom: 20px;
-        }
-        .tab-btn {
-            flex: 1;
-            padding: 12px;
-            background: #374151;
-            border: none;
-            color: #9ca3af;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .tab-btn:first-child { border-radius: 8px 0 0 8px; }
-        .tab-btn:last-child { border-radius: 0 8px 8px 0; }
-        .tab-btn.active {
-            background: #007bff;
-            color: #fff;
-        }
-        
-        .form-panel {
-            display: none;
-        }
-        .form-panel.active {
-            display: block;
-        }
-        
         .input-group {
             margin-bottom: 20px;
-            text-align: left;
         }
         .input-group label {
             display: block;
@@ -82,7 +51,7 @@
             color: #fff;
             border: 2px solid #4b5563;
             border-radius: 8px;
-            padding: 14px;
+            padding: 12px;
             font-size: 1rem;
             font-family: inherit;
         }
@@ -90,106 +59,52 @@
             outline: none;
             border-color: #007bff;
         }
-        
-        .btn-submit {
+        #btn-login {
             width: 100%;
-            background: #10b981;
+            background: #007bff;
             color: #fff;
             border: none;
-            padding: 16px;
-            border-radius: 12px;
+            padding: 15px;
+            border-radius: 8px;
             font-weight: bold;
             font-size: 1.1rem;
             cursor: pointer;
             transition: all 0.3s;
         }
-        .btn-submit:hover {
-            background: #059669;
+        #btn-login:hover {
+            background: #0056b3;
         }
-        .btn-submit:disabled {
-            background: #9ca3af;
-            cursor: not-allowed;
-        }
-        
-        .forgot-password {
-            margin-top: 20px;
-            background: none;
-            border: none;
-            color: #007bff;
-            font-size: 0.9rem;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-        
         #error-message {
             color: #ef4444;
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid #ef4444;
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: none;
+            text-align: center;
+            margin-top: 15px;
+            display: none; /* Começa escondido */
         }
     </style>
 </head>
 <body>
 
-    <div class="login-container">
+    <div class="login-card">
         <h1>Portal do Cliente</h1>
-        <h2>Tomazela Piscinas</h2>
-
-        <div class="tab-buttons">
-            <button class="tab-btn active" onclick="showPanel('login')">Entrar</button>
-            <button class="tab-btn" onclick="showPanel('register')">Primeiro Acesso / Registrar</button>
-        </div>
+        <p>Acesse suas faturas e informações</p>
         
-        <div id="error-message"></div>
-
-        <div id="login-panel" class="form-panel active">
-            <form id="login-form">
-                <div class="input-group">
-                    <label for="login-email">Email</label>
-                    <input type="email" id="login-email" class="input-field" required>
-                </div>
-                <div class="input-group">
-                    <label for="login-password">Senha</label>
-                    <input type="password" id="login-password" class="input-field" required>
-                </div>
-                <button type="submit" class="btn-submit">Entrar</button>
-            </form>
-            <button class="forgot-password" onclick="handleResetPassword()">Esqueci minha senha</button>
-        </div>
-        
-        <div id="register-panel" class="form-panel">
-            <p style="color: #9ca3af; margin-bottom: 20px; font-size: 0.9rem;">
-                Use o <strong>mesmo email</strong> que você informou ao Fernando para criar sua conta.
-            </p>
-            <form id="register-form">
-                <div class="input-group">
-                    <label for="register-email">Email</label>
-                    <input type="email" id="register-email" class="input-field" required>
-                </div>
-                <div class="input-group">
-                    <label for="register-password">Crie sua Senha</label>
-                    <input type="password" id="register-password" class="input-field" required>
-                </div>
-                <button type="submit" class="btn-submit">Criar Conta</button>
-            </form>
-        </div>
-
+        <form id="login-form">
+            <div class="input-group">
+                <label for="email">Email de Acesso</label>
+                <input type="email" id="email" class="input-field" required>
+            </div>
+            <div class="input-group">
+                <label for="password">Senha</label>
+                <input type="password" id="password" class="input-field" required>
+            </div>
+            <button type="submit" id="btn-login">Entrar</button>
+            <p id="error-message"></p>
+        </form>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-        import { 
-            getAuth, 
-            onAuthStateChanged, 
-            signInWithEmailAndPassword,
-            createUserWithEmailAndPassword,
-            sendPasswordResetEmail,
-            signOut 
-        } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
-        import { getDatabase, ref, query, get, orderByChild, equalTo, update } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB_2Ssx3a3CW3PEP2RBh7j5TQl1UPuSg4k",
@@ -201,163 +116,46 @@
             appId: "1:776818671387:web:ca4211e6fa8f3f1c889dbe",
             measurementId: "G-PP230KYC4X"
         };
-        
+
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const database = getDatabase(app);
-        const clientesRef = ref(database, 'clientes');
-        
-        const errorMessage = document.getElementById('error-message');
 
-        // --- ⭐ VIGIA DE AUTENTICAÇÃO "AUTO-CORRETIVO" ATUALIZADO ⭐ ---
-        onAuthStateChanged(auth, async (user) => {
+        // Se o usuário já estiver logado, manda direto para o portal
+        onAuthStateChanged(auth, (user) => {
             if (user) {
-                // 1. Usuário está logado. Vamos verificar o "link" (uid).
-                console.log("Usuário detectado, verificando link 'uid'...");
-                const q_uid = query(clientesRef, orderByChild('uid'), equalTo(user.uid));
-                const snapshot_uid = await get(q_uid);
-                
-                if (snapshot_uid.exists()) {
-                    // 2. Link 'uid' encontrado. Perfeito! Vai para o portal.
-                    console.log("Link 'uid' encontrado. Redirecionando para o portal...");
-                    window.location.href = 'portal_cliente.html';
-                    return;
-                }
-                
-                // 3. Link 'uid' NÃO encontrado. O link está quebrado!
-                //    Vamos tentar consertar procurando pelo EMAIL.
-                console.warn("Link 'uid' não encontrado. Tentando 'auto-corrigir' via email...");
-                const q_email = query(clientesRef, orderByChild('emailAcesso'), equalTo(user.email));
-                const snapshot_email = await get(q_email);
-
-                if (snapshot_email.exists()) {
-                    // 4. Achamos o cliente pelo email! Vamos salvar o 'uid' (o "link")
-                    console.log("Cliente encontrado por email! Corrigindo o link 'uid'...");
-                    const clientId = Object.keys(snapshot_email.val())[0];
-                    const clientUpdates = {};
-                    clientUpdates[`/clientes/${clientId}/uid`] = user.uid;
-                    
-                    try {
-                        await update(ref(database), clientUpdates);
-                        // 5. Link corrigido! Agora vai para o portal.
-                        console.log("Link 'uid' corrigido com sucesso! Redirecionando...");
-                        window.location.href = 'portal_cliente.html';
-                    } catch (e) {
-                        // 6. Falha ao corrigir (pode ser regra de permissão de escrita)
-                        console.error("Falha ao salvar o link 'uid' corrigido:", e);
-                        showError("Erro ao vincular sua conta. Contate o suporte.");
-                        signOut(auth);
-                    }
-                } else {
-                    // 7. NÃO achou por 'uid' E NÃO achou por 'email'.
-                    //    Este usuário NÃO é um cliente (provavelmente o Admin).
-                    console.log("Usuário não é um cliente (provavelmente Admin). Deslogando.");
-                    signOut(auth);
-                }
-            } else {
-                // Ninguém logado. Mostra a tela de login.
-                console.log("Nenhum usuário logado. Exibindo login.");
+                window.location.href = 'portal_cliente.html';
             }
         });
 
-        // --- LÓGICA DAS ABAS (Sem mudanças) ---
-        window.showPanel = (panelName) => {
-            document.getElementById('login-panel').classList.remove('active');
-            document.getElementById('register-panel').classList.remove('active');
-            document.querySelector('.tab-btn[onclick="showPanel(\'login\')"]').classList.remove('active');
-            document.querySelector('.tab-btn[onclick="showPanel(\'register\')"]').classList.remove('active');
-            
-            document.getElementById(`${panelName}-panel`).classList.add('active');
-            document.querySelector(`.tab-btn[onclick="showPanel('${panelName}')"]`).classList.add('active');
-            errorMessage.style.display = 'none'; 
-        }
-
-        // --- FUNÇÃO DE LOGIN (Sem mudanças) ---
         const loginForm = document.getElementById('login-form');
+        const btnLogin = document.getElementById('btn-login');
+        const errorMsg = document.getElementById('error-message');
+
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = e.target.querySelector('button[type="submit"]');
-            btn.disabled = true;
-            btn.textContent = 'Entrando...';
             
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            btnLogin.disabled = true;
+            btnLogin.textContent = 'Entrando...';
+            errorMsg.style.display = 'none';
+
             try {
-                const email = document.getElementById('login-email').value;
-                const password = document.getElementById('login-password').value;
                 await signInWithEmailAndPassword(auth, email, password);
-                // Sucesso! O onAuthStateChanged vai pegar, corrigir se precisar, e redirecionar
+                // O 'onAuthStateChanged' vai pegar o login e redirecionar
             } catch (error) {
-                showError("Email ou senha inválidos.");
-                btn.disabled = false;
-                btn.textContent = 'Entrar';
-            }
-        });
-        
-        // --- FUNÇÃO DE REGISTRAR (Sem mudanças) ---
-        const registerForm = document.getElementById('register-form');
-        registerForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = e.target.querySelector('button[type="submit"]');
-            btn.disabled = true;
-            btn.textContent = 'Criando...';
-            
-            try {
-                const email = document.getElementById('register-email').value;
-                const password = document.getElementById('register-password').value;
-
-                const q = query(clientesRef, orderByChild('emailAcesso'), equalTo(email));
-                const snapshot = await get(q);
-                
-                if (!snapshot.exists()) {
-                    showError("Email não encontrado. Verifique se este é o email que você cadastrou no painel de admin.");
-                    throw new Error("Cliente não encontrado na base de dados");
-                }
-
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-                
-                const clientId = Object.keys(snapshot.val())[0]; 
-                const clientUpdates = {};
-                clientUpdates[`/clientes/${clientId}/uid`] = user.uid; 
-                
-                await update(ref(database), clientUpdates);
-                // Sucesso! O onAuthStateChanged vai pegar e redirecionar
-                
-            } catch (error) {
-                console.error("Erro no registro:", error);
-                if (error.code === 'auth/email-already-in-use') {
-                    showError("Esta conta já foi registrada. Tente 'Entrar' ou 'Esqueci minha senha'.");
-                } else if (error.message.includes("Cliente não encontrado")) {
-                    // Mensagem já exibida
-                } else if (error.code === 'auth/weak-password') {
-                    showError("Senha muito fraca. A senha deve ter no mínimo 6 caracteres.");
-                } else if (error.code === 'auth/invalid-email') {
-                    showError("O email digitado não é válido.");
+                console.error("Erro de login:", error.code);
+                if (error.code === 'auth/invalid-credential') {
+                    errorMsg.textContent = 'Email ou senha inválidos.';
                 } else {
-                    showError("Ocorreu um erro inesperado: " + error.message);
+                    errorMsg.textContent = 'Erro ao tentar logar. Tente novamente.';
                 }
-                
-                btn.disabled = false;
-                btn.textContent = 'Criar Conta';
+                errorMsg.style.display = 'block';
+                btnLogin.disabled = false;
+                btnLogin.textContent = 'Entrar';
             }
         });
-        
-        // --- FUNÇÃO DE RESETAR SENHA (Sem mudanças) ---
-        window.handleResetPassword = async () => {
-            const email = prompt("Por favor, digite seu email de acesso:");
-            if (!email) return;
-            
-            try {
-                await sendPasswordResetEmail(auth, email);
-                alert("Email de redefinição de senha enviado! Verifique sua caixa de entrada.");
-            } catch (error) {
-                showError("Não foi possível enviar o email. Verifique se o email está correto.");
-            }
-        }
-        
-        function showError(message) {
-            errorMessage.textContent = message;
-            errorMessage.style.display = 'block';
-        }
     </script>
 </body>
 </html>
