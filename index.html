@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal do Cliente - Tomazela Piscinas</title>
     <style>
+        /* (Todo o seu CSS continua o mesmo, sem mudanças) */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -59,10 +60,10 @@
         }
         
         .form-panel {
-            display: none; /* Escondido por padrão */
+            display: none;
         }
         .form-panel.active {
-            display: block; /* Mostra o painel ativo */
+            display: block;
         }
         
         .input-group {
@@ -121,13 +122,13 @@
         }
         
         #error-message {
-            color: #ef4444; /* Vermelho */
+            color: #ef4444;
             background: rgba(239, 68, 68, 0.1);
             border: 1px solid #ef4444;
             padding: 10px;
             border-radius: 8px;
             margin-bottom: 20px;
-            display: none; /* Escondido por padrão */
+            display: none;
         }
     </style>
 </head>
@@ -208,17 +209,54 @@
         
         const errorMessage = document.getElementById('error-message');
 
-        // --- VIGIA DE AUTENTICAÇÃO (Sem mudanças) ---
+        // --- ⭐ VIGIA DE AUTENTICAÇÃO "AUTO-CORRETIVO" ATUALIZADO ⭐ ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                const q = query(clientesRef, orderByChild('uid'), equalTo(user.uid));
-                const snapshot = await get(q);
+                // 1. Usuário está logado. Vamos verificar o "link" (uid).
+                console.log("Usuário detectado, verificando link 'uid'...");
+                const q_uid = query(clientesRef, orderByChild('uid'), equalTo(user.uid));
+                const snapshot_uid = await get(q_uid);
                 
-                if (snapshot.exists()) {
-                    window.location.href = 'portal_cliente.html'; 
+                if (snapshot_uid.exists()) {
+                    // 2. Link 'uid' encontrado. Perfeito! Vai para o portal.
+                    console.log("Link 'uid' encontrado. Redirecionando para o portal...");
+                    window.location.href = 'portal_cliente.html';
+                    return;
+                }
+                
+                // 3. Link 'uid' NÃO encontrado. O link está quebrado!
+                //    Vamos tentar consertar procurando pelo EMAIL.
+                console.warn("Link 'uid' não encontrado. Tentando 'auto-corrigir' via email...");
+                const q_email = query(clientesRef, orderByChild('emailAcesso'), equalTo(user.email));
+                const snapshot_email = await get(q_email);
+
+                if (snapshot_email.exists()) {
+                    // 4. Achamos o cliente pelo email! Vamos salvar o 'uid' (o "link")
+                    console.log("Cliente encontrado por email! Corrigindo o link 'uid'...");
+                    const clientId = Object.keys(snapshot_email.val())[0];
+                    const clientUpdates = {};
+                    clientUpdates[`/clientes/${clientId}/uid`] = user.uid;
+                    
+                    try {
+                        await update(ref(database), clientUpdates);
+                        // 5. Link corrigido! Agora vai para o portal.
+                        console.log("Link 'uid' corrigido com sucesso! Redirecionando...");
+                        window.location.href = 'portal_cliente.html';
+                    } catch (e) {
+                        // 6. Falha ao corrigir (pode ser regra de permissão de escrita)
+                        console.error("Falha ao salvar o link 'uid' corrigido:", e);
+                        showError("Erro ao vincular sua conta. Contate o suporte.");
+                        signOut(auth);
+                    }
                 } else {
+                    // 7. NÃO achou por 'uid' E NÃO achou por 'email'.
+                    //    Este usuário NÃO é um cliente (provavelmente o Admin).
+                    console.log("Usuário não é um cliente (provavelmente Admin). Deslogando.");
                     signOut(auth);
                 }
+            } else {
+                // Ninguém logado. Mostra a tela de login.
+                console.log("Nenhum usuário logado. Exibindo login.");
             }
         });
 
@@ -246,6 +284,7 @@
                 const email = document.getElementById('login-email').value;
                 const password = document.getElementById('login-password').value;
                 await signInWithEmailAndPassword(auth, email, password);
+                // Sucesso! O onAuthStateChanged vai pegar, corrigir se precisar, e redirecionar
             } catch (error) {
                 showError("Email ou senha inválidos.");
                 btn.disabled = false;
@@ -253,7 +292,7 @@
             }
         });
         
-        // --- ⭐ FUNÇÃO DE REGISTRAR ATUALIZADA (COM LÓGICA DE ERRO CORRETA) ⭐ ---
+        // --- FUNÇÃO DE REGISTRAR (Sem mudanças) ---
         const registerForm = document.getElementById('register-form');
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -265,7 +304,6 @@
                 const email = document.getElementById('register-email').value;
                 const password = document.getElementById('register-password').value;
 
-                // 1. Verifica se esse email é de um cliente válido
                 const q = query(clientesRef, orderByChild('emailAcesso'), equalTo(email));
                 const snapshot = await get(q);
                 
@@ -274,38 +312,30 @@
                     throw new Error("Cliente não encontrado na base de dados");
                 }
 
-                // 2. Se o email existe, cria a conta de autenticação
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
                 
-                // 3. Vincula o ID de Autenticação (uid) ao cadastro do cliente
                 const clientId = Object.keys(snapshot.val())[0]; 
                 const clientUpdates = {};
                 clientUpdates[`/clientes/${clientId}/uid`] = user.uid; 
                 
                 await update(ref(database), clientUpdates);
-                
                 // Sucesso! O onAuthStateChanged vai pegar e redirecionar
                 
             } catch (error) {
                 console.error("Erro no registro:", error);
-                
-                // ⭐ Lógica de erro melhorada
                 if (error.code === 'auth/email-already-in-use') {
                     showError("Esta conta já foi registrada. Tente 'Entrar' ou 'Esqueci minha senha'.");
                 } else if (error.message.includes("Cliente não encontrado")) {
-                    // Mensagem já exibida pelo showError
+                    // Mensagem já exibida
                 } else if (error.code === 'auth/weak-password') {
                     showError("Senha muito fraca. A senha deve ter no mínimo 6 caracteres.");
                 } else if (error.code === 'auth/invalid-email') {
                     showError("O email digitado não é válido.");
-                } else if (error.code === 'auth/operation-not-allowed') {
-                    showError("Erro do servidor: A criação de contas não está habilitada. (Contate o admin)");
                 } else {
                     showError("Ocorreu um erro inesperado: " + error.message);
                 }
                 
-                // Re-habilita o botão
                 btn.disabled = false;
                 btn.textContent = 'Criar Conta';
             }
