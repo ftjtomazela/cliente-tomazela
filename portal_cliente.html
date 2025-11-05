@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minhas Faturas - Portal do Cliente</title>
     <style>
-        /* (Todo o seu CSS está 100% igual, sem mudanças) */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -64,7 +63,9 @@
             padding: 4px 8px; border-radius: 6px;
             margin-top: 5px; display: inline-block;
         }
+        /* Cor Laranja para Pendente */
         .status-pendente { background: #f59e0b; color: #fff; }
+        /* Cor Verde para Pago */
         .status-pago { background: #10b981; color: #fff; }
         
         .fatura-valor {
@@ -155,7 +156,6 @@
             font-size: 1rem;
             color: #ccc;
             margin-bottom: 5px;
-            /* ⭐ NOVO: Quebra de linha para observações longas */
             white-space: pre-wrap; 
             word-break: break-word;
         }
@@ -230,7 +230,7 @@
         const database = getDatabase(app);
         
         const clientesRef = ref(database, 'clientes');
-        const faturasRef = ref(database, 'faturas');
+        const faturasRef = ref(database, 'faturas'); // Leitura do NÓ PRINCIPAL
         const empresaRef = ref(database, 'empresa');
         const visitasRef = ref(database, 'visitas'); 
         
@@ -283,7 +283,7 @@
                 
                 document.getElementById('welcome-message').textContent = `Bem-vindo, ${clienteData.nome}!`;
 
-                // 3. Busca as FATURAS desse cliente
+                // 3. Busca as FATURAS desse cliente (Lendo do NÓ PRINCIPAL /faturas)
                 const faturasQuery = query(faturasRef, orderByChild('cliente/id'), equalTo(clienteData.id));
                 const faturasSnap = await get(faturasQuery);
                 
@@ -296,7 +296,7 @@
                 }
                 renderFaturas(faturasList);
                 
-                // 4. Busca as VISITAS desse cliente (com a consulta correta)
+                // 4. Busca as VISITAS desse cliente
                 const visitasQuery = query(visitasRef, orderByChild('clienteId'), equalTo(clienteData.id));
                 const visitasSnap = await get(visitasQuery);
                 
@@ -306,7 +306,6 @@
                         visitasList.push({ id: child.key, ...child.val() });
                     });
                     
-                    // 5. Usa o "tradutor" para ordenar
                     visitasList.sort((a, b) => parsePtBrDate(b.data) - parsePtBrDate(a.data));
                 }
                 
@@ -322,7 +321,7 @@
             }
         }
 
-        // --- Renderização das Faturas (Sem mudanças) ---
+        // --- Renderização das Faturas (Separa Pendentes e Pagos) ---
         function renderFaturas(faturasList) {
             const pendentesContainer = document.getElementById('lista-pendentes');
             const historicoContainer = document.getElementById('lista-historico');
@@ -334,15 +333,22 @@
             let historicoCount = 0;
 
             faturasList.forEach(fatura => {
-                pendentesCount++;
-                pendentesContainer.appendChild(createFaturaCard(fatura));
+                // Lê o status do nó principal
+                if (fatura.status === 'Pago') {
+                    historicoCount++;
+                    historicoContainer.appendChild(createFaturaCard(fatura));
+                } else {
+                    // Trata 'Pendente' e faturas antigas sem status como 'Pendente'
+                    pendentesCount++;
+                    pendentesContainer.appendChild(createFaturaCard(fatura));
+                }
             });
 
             if (pendentesCount === 0) {
                 pendentesContainer.innerHTML = '<p>Nenhuma fatura pendente.</p>';
             }
             if (historicoCount === 0) {
-                historicoContainer.innerHTML = '<p>Nenhum histórico encontrado.</p>';
+                historicoContainer.innerHTML = '<p>Nenhum histórico de faturas pagas.</p>';
             }
         }
         
@@ -353,6 +359,26 @@
             const card = document.createElement('div');
             card.className = 'fatura-card';
             
+            let statusHtml = '';
+            let pixHtml = ''; 
+
+            // Lógica do Status e PIX
+            if (fatura.status === 'Pago') {
+                statusHtml = '<span class="fatura-info status status-pago">PAGO</span>';
+            } else {
+                statusHtml = '<span class="fatura-info status status-pendente">PENDENTE</span>';
+                // Se estiver pendente, mostra a seção PIX
+                pixHtml = `
+                    <div class="pix-section">
+                        <h3>Pague sua Fatura</h3>
+                        <p>Use a chave PIX (CNPJ) abaixo para pagar o valor total de <strong>R$ ${fatura.totalFatura.toFixed(2)}</strong> e envie o comprovante.</p>
+                        <div class="pix-chave">${dadosEmpresa.cnpj || 'CNPJ não cadastrado'}</div>
+                        <button class="btn-copiar-pix" data-cnpj="${dadosEmpresa.cnpj || ''}">Copiar Chave PIX</button>
+                    </div>
+                `;
+            }
+
+            // Renderiza os itens (a "nota")
             let itensHtml = '';
             itensHtml += `
                 <div class="nota-item">
@@ -374,20 +400,12 @@
                 });
             }
 
-            const pixHtml = `
-                <div class="pix-section">
-                    <h3>Pague sua Fatura</h3>
-                    <p>Use a chave PIX (CNPJ) abaixo para pagar o valor total de <strong>R$ ${fatura.totalFatura.toFixed(2)}</strong> e envie o comprovante.</p>
-                    <div class="pix-chave">${dadosEmpresa.cnpj || 'CNPJ não cadastrado'}</div>
-                    <button class="btn-copiar-pix" data-cnpj="${dadosEmpresa.cnpj || ''}">Copiar Chave PIX</button>
-                </div>
-            `;
-
+            // Monta o card
             card.innerHTML = `
                 <div class="fatura-header" onclick="toggleDetalhes(this)">
                     <div class="fatura-info">
                         <div class="data">Fatura de ${mesAno}</div>
-                        <span class="fatura-info status status-pendente">PENDENTE</span>
+                        ${statusHtml}
                     </div>
                     <div class="fatura-valor">
                         <div class="total">R$ ${fatura.totalFatura.toFixed(2)}</div>
@@ -403,20 +421,23 @@
                             <span>R$ ${fatura.totalFatura.toFixed(2)}</span>
                         </div>
                         
-                        ${pixHtml}
-                    </div>
+                        ${pixHtml} </div>
                 </div>
             `;
             
-            card.querySelector('.btn-copiar-pix').addEventListener('click', (e) => {
-                const cnpj = e.target.dataset.cnpj;
-                navigator.clipboard.writeText(cnpj).then(() => {
-                    e.target.textContent = 'Copiado!';
-                    setTimeout(() => { e.target.textContent = 'Copiar Chave PIX'; }, 2000);
-                }).catch(err => {
-                    alert('Erro ao copiar CNPJ.');
+            // Adiciona a função de "Copiar" no botão (só se o botão existir)
+            const btnCopiar = card.querySelector('.btn-copiar-pix');
+            if (btnCopiar) {
+                btnCopiar.addEventListener('click', (e) => {
+                    const cnpj = e.target.dataset.cnpj;
+                    navigator.clipboard.writeText(cnpj).then(() => {
+                        e.target.textContent = 'Copiado!';
+                        setTimeout(() => { e.target.textContent = 'Copiar Chave PIX'; }, 2000);
+                    }).catch(err => {
+                        alert('Erro ao copiar CNPJ.');
+                    });
                 });
-            });
+            }
 
             return card;
         }
@@ -424,7 +445,7 @@
         // --- Funções para Renderizar Visitas ---
         function renderVisitas(visitasList) {
             const container = document.getElementById('lista-visitas');
-            container.innerHTML = ''; // Limpa a mensagem
+            container.innerHTML = ''; 
 
             if (visitasList.length === 0) {
                 container.innerHTML = '<p>Nenhum histórico de visita encontrado.</p>';
@@ -436,16 +457,13 @@
             });
         }
         
-        // ⭐ FUNÇÃO createVisitaCard CORRIGIDA ⭐
         function createVisitaCard(visita) {
             const data = parsePtBrDate(visita.data); 
             const dataFormatada = data.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
             
             const card = document.createElement('div');
-            card.className = 'fatura-card'; // Re-usa o estilo
+            card.className = 'fatura-card'; 
 
-            // Removemos o 'itensHtml' daqui
-            
             card.innerHTML = `
                 <div class="fatura-header" onclick="toggleDetalhes(this)">
                     <div class="fatura-info">
