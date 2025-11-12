@@ -3,109 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal do Cliente</title>
+    <title>Login Cliente - Tomazela Piscinas</title>
     <style>
+        /* --- ESTILOS GERAIS --- */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(to bottom, #004e92 0%, #000428 100%);
             color: #ffffff;
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             min-height: 100vh;
             padding: 20px;
         }
-        .login-card {
+        .login-container {
             background: linear-gradient(145deg, #2d3748, #1a202c);
-            border-radius: 16px;
             padding: 40px;
-            border: 2px solid #374151;
+            border-radius: 20px;
+            border: 2px solid #007bff; /* Borda Azul */
             width: 100%;
             max-width: 400px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        .login-card h1 {
             text-align: center;
-            color: #fff;
+        }
+        .login-container h1 {
+            color: #007bff;
             font-size: 2rem;
-            margin-bottom: 10px;
-        }
-        .login-card p {
-            text-align: center;
-            color: #9ca3af;
             margin-bottom: 30px;
         }
-        .input-group {
+
+        /* --- FORMULÁRIO --- */
+        .form-group {
             margin-bottom: 20px;
+            text-align: left;
         }
-        .input-group label {
+        .form-group label {
             display: block;
             margin-bottom: 8px;
-            color: #9ca3af;
             font-weight: bold;
+            color: #9ca3af;
         }
-        .input-field {
+        .form-input {
             width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid #4b5563;
             background: #374151;
             color: #fff;
-            border: 2px solid #4b5563;
-            border-radius: 8px;
-            padding: 12px;
             font-size: 1rem;
             font-family: inherit;
         }
-        .input-field:focus {
+        .form-input:focus {
             outline: none;
             border-color: #007bff;
+            background: #4b5563;
         }
-        #btn-login {
+
+        .login-btn {
             width: 100%;
-            background: #007bff;
-            color: #fff;
+            padding: 14px;
             border: none;
-            padding: 15px;
             border-radius: 8px;
-            font-weight: bold;
+            background: #10b981; /* Verde */
+            color: #fff;
             font-size: 1.1rem;
+            font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background 0.3s;
+            margin-top: 10px;
         }
-        #btn-login:hover {
-            background: #0056b3;
+        .login-btn:hover {
+            background: #059669;
         }
-        #error-message {
-            color: #ef4444;
-            text-align: center;
+        .login-btn:disabled {
+            background: #4b5563;
+            cursor: not-allowed;
+        }
+
+        /* --- MENSAGENS E LINKS --- */
+        .error-message {
+            background: #dc2626;
+            color: #fff;
+            padding: 10px;
+            border-radius: 8px;
             margin-top: 15px;
-            display: none; /* Começa escondido */
+            display: none;
+            font-size: 0.9rem;
         }
+        .success-message {
+            background: #10b981;
+            color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
+            display: none;
+            font-size: 0.9rem;
+        }
+        .sub-links {
+            margin-top: 25px;
+            font-size: 0.9rem;
+        }
+        .sub-links a {
+            color: #007bff;
+            text-decoration: none;
+            display: block;
+            margin-top: 10px;
+            transition: color 0.3s;
+        }
+        .sub-links a:hover {
+            color: #60a5fa;
+        }
+
+        /* --- SEÇÃO PRIMEIRO ACESSO (Oculta por padrão) --- */
+        #first-access-section {
+            display: none;
+        }
+        #login-section {
+            display: block;
+        }
+
     </style>
 </head>
 <body>
 
-    <div class="login-card">
+    <div class="login-container">
         <h1>Portal do Cliente</h1>
-        <p>Acesse suas faturas e informações</p>
-        
-        <form id="login-form">
-            <div class="input-group">
-                <label for="email">Email de Acesso</label>
-                <input type="email" id="email" class="input-field" required>
+
+        <div class="error-message" id="error-message"></div>
+        <div class="success-message" id="success-message"></div>
+
+        <section id="login-section">
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" class="form-input" required placeholder="Seu email de cadastro">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Senha</label>
+                    <input type="password" id="login-password" class="form-input" required placeholder="Sua senha">
+                </div>
+                <button type="submit" id="login-btn" class="login-btn">Entrar</button>
+            </form>
+
+            <div class="sub-links">
+                <a href="#" onclick="showForgotPassword()">Esqueceu a Senha?</a>
+                <a href="#" onclick="showFirstAccess()">⭐ Primeiro Acesso (Cadastrar Senha)</a>
             </div>
-            <div class="input-group">
-                <label for="password">Senha</label>
-                <input type="password" id="password" class="input-field" required>
+        </section>
+
+        <section id="first-access-section">
+            <h2 style="color: #10b981; font-size: 1.5rem; margin-bottom: 20px;">Cadastrar sua Senha</h2>
+            <p style="color: #9ca3af; margin-bottom: 20px; font-size: 0.95rem;">
+                Insira o seu email de cadastro e a senha que deseja usar.
+            </p>
+            <form id="first-access-form">
+                <div class="form-group">
+                    <label for="first-access-email">Email de Cadastro</label>
+                    <input type="email" id="first-access-email" class="form-input" required placeholder="Seu email">
+                </div>
+                <div class="form-group">
+                    <label for="first-access-password">Nova Senha</label>
+                    <input type="password" id="first-access-password" class="form-input" required placeholder="Mínimo 6 caracteres">
+                </div>
+                <button type="submit" id="first-access-btn" class="login-btn" style="background: #007bff;">
+                    Cadastrar e Entrar
+                </button>
+            </form>
+
+            <div class="sub-links">
+                <a href="#" onclick="showLogin()">← Voltar ao Login</a>
             </div>
-            <button type="submit" id="btn-login">Entrar</button>
-            <p id="error-message"></p>
-        </form>
+        </section>
+
+         <section id="forgot-password-section" style="display: none;">
+            <h2 style="color: #f59e0b; font-size: 1.5rem; margin-bottom: 20px;">Redefinir Senha</h2>
+            <p style="color: #9ca3af; margin-bottom: 20px; font-size: 0.95rem;">
+                Enviaremos um link de redefinição para o seu email de cadastro.
+            </p>
+            <form id="forgot-password-form">
+                <div class="form-group">
+                    <label for="forgot-email">Email de Cadastro</label>
+                    <input type="email" id="forgot-email" class="form-input" required placeholder="Seu email">
+                </div>
+                <button type="submit" id="forgot-btn" class="login-btn" style="background: #f59e0b;">
+                    Enviar Link de Redefinição
+                </button>
+            </form>
+
+            <div class="sub-links">
+                <a href="#" onclick="showLogin()">← Voltar ao Login</a>
+            </div>
+        </section>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+        import { getDatabase, ref, get, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-database.js";
 
+        // ⭐ Configuração do seu Firebase (Mantenha igual à do seu sistema) ⭐
         const firebaseConfig = {
             apiKey: "AIzaSyB_2Ssx3a3CW3PEP2RBh7j5TQl1UPuSg4k",
             authDomain: "tomazela-piscinas.firebaseapp.com",
@@ -116,45 +213,156 @@
             appId: "1:776818671387:web:ca4211e6fa8f3f1c889dbe",
             measurementId: "G-PP230KYC4X"
         };
-
+        
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const database = getDatabase(app);
+        
+        const clientesRef = ref(database, 'clientes');
 
-        // Se o usuário já estiver logado, manda direto para o portal
+        const errorMessage = document.getElementById('error-message');
+        const successMessage = document.getElementById('success-message');
+        const DESTINATION_PAGE = 'portal_cliente.html'; 
+
+        function displayMessage(element, message, type = 'error') {
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+            
+            if (type === 'success') {
+                element = successMessage;
+            } else {
+                element = errorMessage;
+            }
+            element.textContent = message;
+            element.style.display = 'block';
+        }
+
+        // --- 1. VERIFICAÇÃO DE ESTADO E REDIRECIONAMENTO ---
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                window.location.href = 'portal_cliente.html';
+                window.location.href = DESTINATION_PAGE; 
             }
         });
 
-        const loginForm = document.getElementById('login-form');
-        const btnLogin = document.getElementById('btn-login');
-        const errorMsg = document.getElementById('error-message');
+        // --- 2. LÓGICA DE TROCA DE TELA ---
+        const sections = ['login-section', 'first-access-section', 'forgot-password-section'];
 
-        loginForm.addEventListener('submit', async (e) => {
+        function switchSection(targetSectionId) {
+            sections.forEach(id => {
+                document.getElementById(id).style.display = (id === targetSectionId) ? 'block' : 'none';
+            });
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+        }
+
+        window.showLogin = () => switchSection('login-section');
+        window.showFirstAccess = () => switchSection('first-access-section');
+        window.showForgotPassword = () => switchSection('forgot-password-section');
+
+        // --- 3. LÓGICA DE LOGIN ---
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault(); 
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const loginBtn = document.getElementById('login-btn');
+            
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Verificando...';
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+
+            signInWithEmailAndPassword(auth, email, password)
+                .then(() => {
+                    // Sucesso: Redirecionamento automático via onAuthStateChanged
+                })
+                .catch((error) => {
+                    console.error(error.code, error.message);
+                    if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+                        displayMessage(errorMessage, 'Email ou palavra-passe incorretos. Se for o primeiro acesso, cadastre sua senha.');
+                    } else {
+                        displayMessage(errorMessage, 'Ocorreu um erro de login. Tente novamente.');
+                    }
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = 'Entrar';
+                });
+        });
+
+        // --- 4. LÓGICA PRIMEIRO ACESSO (CADASTRO DIRETO) ---
+        document.getElementById('first-access-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+            const email = document.getElementById('first-access-email').value;
+            const password = document.getElementById('first-access-password').value;
+            const accessBtn = document.getElementById('first-access-btn');
+            
+            accessBtn.disabled = true;
+            accessBtn.textContent = 'Cadastrando...';
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
 
-            btnLogin.disabled = true;
-            btnLogin.textContent = 'Entrando...';
-            errorMsg.style.display = 'none';
+            // 1. Verifica se o email existe no nó 'clientes' (segundo seu cadastro)
+            const clienteQuery = query(clientesRef, orderByChild('emailAcesso'), equalTo(email));
+            const clienteSnap = await get(clienteQuery);
 
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-                // O 'onAuthStateChanged' vai pegar o login e redirecionar
-            } catch (error) {
-                console.error("Erro de login:", error.code);
-                if (error.code === 'auth/invalid-credential') {
-                    errorMsg.textContent = 'Email ou senha inválidos.';
-                } else {
-                    errorMsg.textContent = 'Erro ao tentar logar. Tente novamente.';
-                }
-                errorMsg.style.display = 'block';
-                btnLogin.disabled = false;
-                btnLogin.textContent = 'Entrar';
+            if (!clienteSnap.exists()) {
+                displayMessage(errorMessage, 'O email fornecido não está cadastrado em nosso sistema. Verifique e tente novamente.');
+                accessBtn.disabled = false;
+                accessBtn.textContent = 'Cadastrar e Entrar';
+                return;
             }
+
+            // 2. Tenta criar o usuário no Firebase Auth (se ele não existir, será a primeira senha)
+            createUserWithEmailAndPassword(auth, email, password)
+                .then(() => {
+                    displayMessage(successMessage, '✅ Senha cadastrada com sucesso! Redirecionando...');
+                    // Login automático e redirecionamento via onAuthStateChanged
+                })
+                .catch((error) => {
+                    console.error(error.code, error.message);
+                    if (error.code === 'auth/email-already-in-use') {
+                        displayMessage(errorMessage, 'Este email já possui uma senha cadastrada. Use a opção "Esqueceu a Senha?" para redefini-la.');
+                    } else if (error.code === 'auth/weak-password') {
+                         displayMessage(errorMessage, 'A senha deve ter pelo menos 6 caracteres.');
+                    } else {
+                        displayMessage(errorMessage, 'Erro ao cadastrar a senha. Tente novamente ou entre em contato.');
+                    }
+                    accessBtn.disabled = false;
+                    accessBtn.textContent = 'Cadastrar e Entrar';
+                });
+        });
+        
+        // --- 5. LÓGICA ESQUECEU A SENHA (Reset por Email) ---
+        document.getElementById('forgot-password-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('forgot-email').value;
+            const forgotBtn = document.getElementById('forgot-btn');
+            
+            forgotBtn.disabled = true;
+            forgotBtn.textContent = 'Enviando...';
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+
+            // Envia link de redefinição padrão do Firebase (requer email)
+            sendPasswordResetEmail(auth, email)
+                .then(() => {
+                    displayMessage(successMessage, 
+                        '✅ **Link enviado!** Verifique a sua caixa de entrada (e a pasta Spam) para redefinir a sua senha.', 
+                        'success'
+                    );
+                    forgotBtn.disabled = false;
+                    forgotBtn.textContent = 'Enviar Link de Redefinição';
+                })
+                .catch((error) => {
+                    // Trata o erro 'user-not-found' de forma não informativa por segurança.
+                    displayMessage(successMessage, 
+                        '✅ **Link enviado!** Verifique a sua caixa de entrada (e a pasta Spam) para redefinir a sua senha.', 
+                        'success'
+                    );
+                    forgotBtn.disabled = false;
+                    forgotBtn.textContent = 'Enviar Link de Redefinição';
+                });
         });
     </script>
 </body>
